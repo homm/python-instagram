@@ -48,6 +48,10 @@ def bind_method(**config):
             self.api = api
             self.as_generator = kwargs.pop("as_generator", False)
             self.return_json = kwargs.pop("return_json", False)
+            if kwargs.pop("return_next_id", False):
+                self.pagination_key = 'next_max_id'
+            else:
+                self.pagination_key = 'next_url'
             self.max_pages = kwargs.pop("max_pages", 3)
             self.parameters = {}
             self._build_parameters(args, kwargs)
@@ -119,7 +123,7 @@ def bind_method(**config):
                         api_responses = self.root_class.object_from_dictionary(data)
                 elif self.response_type == 'empty':
                     pass
-                return api_responses, content_obj.get('pagination', {}).get('next_url')
+                return api_responses, content_obj.get('pagination', {})
             else:
                 raise InstagramAPIError(status_code, content_obj['meta']['error_type'], content_obj['meta']['error_message'])
 
@@ -127,9 +131,10 @@ def bind_method(**config):
             headers = headers or {}
             pages_read = 0
             while url and pages_read < self.max_pages:
-                api_responses, url = self._do_api_request(url, method, body, headers)
+                api_responses, pagination = self._do_api_request(url, method, body, headers)
                 pages_read += 1
-                yield api_responses, url
+                url = pagination.get('next_url')
+                yield api_responses, pagination.get(self.pagination_key)
             return
 
         def execute(self):
@@ -140,9 +145,9 @@ def bind_method(**config):
             if self.as_generator:
                 return self._paginator_with_url(url, method, body, headers)
             else:
-                content, next = self._do_api_request(url, method, body, headers)
+                content, pagination = self._do_api_request(url, method, body, headers)
             if self.paginates:
-                return content, next
+                return content, pagination.get(self.pagination_key)
             else:
                 return content
 

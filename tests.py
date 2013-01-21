@@ -125,7 +125,10 @@ class InstagramAPITests(unittest.TestCase):
         self.api.user_liked_media(count=10)
 
     def test_user_recent_media(self):
-        self.api.user_recent_media(count=10)
+        _data, url = self.api.user_recent_media(count=10)
+        assert url.startswith(('http://', 'https://'))
+        _data, next_id = self.api.user_recent_media(count=10, return_next_id=True)
+        int(next_id)
 
     def test_user_search(self):
         self.api.user_search('mikeyk', 10)
