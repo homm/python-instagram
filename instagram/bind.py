@@ -39,6 +39,7 @@ def bind_method(**config):
         accepts_parameters = config.get("accepts_parameters", [])
         requires_target_user = config.get('requires_target_user', False)
         paginates = config.get('paginates', False)
+        pagination_key = config.get('pagination_key', 'max_id')
         root_class = config.get('root_class', None)
         response_type = config.get("response_type", "list")
         include_secret = config.get("include_secret", False)
@@ -48,10 +49,8 @@ def bind_method(**config):
             self.api = api
             self.as_generator = kwargs.pop("as_generator", False)
             self.return_json = kwargs.pop("return_json", False)
-            if kwargs.pop("return_next_id", False):
-                self.pagination_key = 'next_max_id'
-            else:
-                self.pagination_key = 'next_url'
+            if not kwargs.pop("return_pagination_id", False):
+                self.pagination_key = 'url'
             self.max_pages = kwargs.pop("max_pages", 3)
             self.parameters = {}
             self._build_parameters(args, kwargs)
@@ -74,6 +73,12 @@ def bind_method(**config):
                 if key in self.parameters:
                     raise InstagramClientError("Parameter %s already supplied" % key)
                 self.parameters[key] = encode_string(value)
+
+            # Parameter 'pagination_id' is alias to self.pagination_key
+            if self.paginates and self.pagination_key not in self.parameters \
+               and kwargs.get('pagination_id') is not None:
+                self.parameters[self.pagination_key] = kwargs['pagination_id']
+
             if 'user_id' in self.accepts_parameters and not 'user_id' in self.parameters \
                and not self.requires_target_user:
                 self.parameters['user_id'] = 'self'
@@ -134,7 +139,7 @@ def bind_method(**config):
                 api_responses, pagination = self._do_api_request(url, method, body, headers)
                 pages_read += 1
                 url = pagination.get('next_url')
-                yield api_responses, pagination.get(self.pagination_key)
+                yield api_responses, pagination.get('next_' + self.pagination_key)
             return
 
         def execute(self):
@@ -147,7 +152,7 @@ def bind_method(**config):
             else:
                 content, pagination = self._do_api_request(url, method, body, headers)
             if self.paginates:
-                return content, pagination.get(self.pagination_key)
+                return content, pagination.get('next_' + self.pagination_key)
             else:
                 return content
 
