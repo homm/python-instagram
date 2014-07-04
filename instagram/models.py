@@ -50,11 +50,15 @@ class Media(ApiModel):
         new_media.user = User.object_from_dictionary(entry['user'])
         new_media.images = {}
         for version, version_info in entry['images'].iteritems():
+            if not version_info:
+                continue
             new_media.images[version] = Image.object_from_dictionary(version_info)
 
-        if 'videos' in entry:
+        if entry.get('videos'):
             new_media.videos = {}
             for version, version_info in entry['videos'].iteritems():
+                if not version_info:
+                    continue
                 new_media.videos[version] = Video.object_from_dictionary(version_info)
 
         if 'user_has_liked' in entry:
