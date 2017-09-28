@@ -15,7 +15,7 @@ class ApiModel(object):
 
 class Image(ApiModel):
 
-    def __init__(self, url, width, height):
+    def __init__(self, url, width, height, **kwargs):
         self.url = url
         self.height = height
         self.width = width
