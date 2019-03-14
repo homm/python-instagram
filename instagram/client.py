@@ -1,6 +1,6 @@
-import oauth2
-from bind import bind_method
-from models import Media, User, Location, Tag, Comment, Relationship
+from .oauth2 import OAuth2API
+from .bind import bind_method
+from .models import Media, User, Location, Tag, Comment, Relationship
 
 MEDIA_ACCEPT_PARAMETERS = ["count", "max_id"]
 SEARCH_ACCEPT_PARAMETERS = ["q", "count"]
@@ -8,7 +8,7 @@ SEARCH_ACCEPT_PARAMETERS = ["q", "count"]
 SUPPORTED_FORMATS = ['json']
 
 
-class InstagramAPI(oauth2.OAuth2API):
+class InstagramAPI(OAuth2API):
 
     host = "api.instagram.com"
     base_path = "/v1"
