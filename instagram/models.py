@@ -3,7 +3,6 @@ import six
 from .helper import timestamp_to_datetime
 
 
-
 class ApiModel(object):
 
     @classmethod
@@ -14,10 +13,6 @@ class ApiModel(object):
 
     def __repr__(self):
         return str(self)
-        # if six.PY2:
-        #     return six.text_type(self).encode('utf8')
-        # else:
-        #     return self.encode('utf8')
 
     def __str__(self):
         if six.PY3:
@@ -148,7 +143,7 @@ class Point(ApiModel):
 
 class Location(ApiModel):
     def __init__(self, id, *args, **kwargs):
-        self.id = str(id)
+        self.id = id
         for key, value in six.iteritems(kwargs):
             setattr(self, key, value)
 
