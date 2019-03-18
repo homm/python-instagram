@@ -1,4 +1,7 @@
+from __future__ import absolute_import
+
 from .json_import import simplejson
+
 from six.moves.urllib.parse import urlencode
 from httplib2 import Http
 import mimetypes

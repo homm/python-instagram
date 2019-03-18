@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import six
 
 from .helper import timestamp_to_datetime

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from .oauth2 import OAuth2Request
 import re
 from .json_import import simplejson

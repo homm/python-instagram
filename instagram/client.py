@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from .oauth2 import OAuth2API
 from .bind import bind_method
 from .models import Media, User, Location, Tag, Comment, Relationship
