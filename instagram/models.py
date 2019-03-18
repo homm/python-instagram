@@ -13,6 +13,9 @@ class ApiModel(object):
         entry_str_dict = dict([(str(key), value) for key, value in entry.items()])
         return cls(**entry_str_dict)
 
+    def __unicode__(self):
+        raise NotImplementedError()
+
     def __repr__(self):
         return str(self)
 
