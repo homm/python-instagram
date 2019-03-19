@@ -43,6 +43,7 @@ class MockHttp(object):
         content = fl.read()
         json_content = simplejson.loads(content)
         status = json_content['meta']['code']
+        fl.close()
         return {
             'status': status
         }, content
