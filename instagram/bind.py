@@ -12,10 +12,13 @@ re_path_template = re.compile('{\w+}')
 
 
 def encode_string(value):
-    if isinstance(value, six.text_type):
-        return value.encode('utf-8')
-    else:
+    if isinstance(value, bytes):
         return value
+
+    if not isinstance(value, six.text_type):
+        value = six.text_type(value)
+
+    return value.encode('utf-8')
 
 
 class InstagramClientError(Exception):
