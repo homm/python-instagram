@@ -10,7 +10,8 @@ class ApiModel(object):
     @classmethod
     def object_from_dictionary(cls, entry):
         # make dict keys all strings
-        entry_str_dict = dict([(str(key), value) for key, value in entry.items()])
+        entry_str_dict = {six.text_type(key): value
+                          for key, value in entry.items()}
         return cls(**entry_str_dict)
 
     def __unicode__(self):
