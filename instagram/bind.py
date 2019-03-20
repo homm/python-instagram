@@ -1,14 +1,24 @@
-import urllib
-from oauth2 import OAuth2Request
+from __future__ import absolute_import
+
+from .oauth2 import OAuth2Request
 import re
-from json_import import simplejson
+from .json_import import simplejson
+
+import six
+from six.moves.urllib.parse import quote
+
 
 re_path_template = re.compile('{\w+}')
 
 
 def encode_string(value):
-    return value.encode('utf-8') \
-                        if isinstance(value, unicode) else str(value)
+    if isinstance(value, bytes):
+        return value
+
+    if not isinstance(value, six.text_type):
+        value = six.text_type(value)
+
+    return value.encode('utf-8')
 
 
 class InstagramClientError(Exception):
@@ -67,7 +77,7 @@ def bind_method(**config):
                 except IndexError:
                     raise InstagramClientError("Too many arguments supplied")
 
-            for key, value in kwargs.iteritems():
+            for key, value in kwargs.items():
                 if value is None:
                     continue
                 if key in self.parameters:
@@ -79,7 +89,7 @@ def bind_method(**config):
                and kwargs.get('pagination_id') is not None:
                 self.parameters[self.pagination_key] = kwargs['pagination_id']
 
-            if 'user_id' in self.accepts_parameters and not 'user_id' in self.parameters \
+            if 'user_id' in self.accepts_parameters and 'user_id' not in self.parameters \
                and not self.requires_target_user:
                 self.parameters['user_id'] = 'self'
 
@@ -88,7 +98,7 @@ def bind_method(**config):
                 name = variable.strip('{}')
 
                 try:
-                    value = urllib.quote(self.parameters[name])
+                    value = quote(self.parameters[name])
                 except KeyError:
                     raise Exception('No parameter value found for path variable: %s' % name)
                 del self.parameters[name]

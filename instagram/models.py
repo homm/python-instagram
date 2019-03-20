@@ -1,4 +1,8 @@
-from helper import timestamp_to_datetime
+from __future__ import absolute_import
+
+import six
+
+from .helper import timestamp_to_datetime
 
 
 class ApiModel(object):
@@ -6,11 +10,21 @@ class ApiModel(object):
     @classmethod
     def object_from_dictionary(cls, entry):
         # make dict keys all strings
-        entry_str_dict = dict([(str(key), value) for key, value in entry.items()])
+        entry_str_dict = {six.text_type(key): value
+                          for key, value in entry.items()}
         return cls(**entry_str_dict)
 
+    def __unicode__(self):
+        raise NotImplementedError()
+
     def __repr__(self):
-        return unicode(self).encode('utf8')
+        return str(self)
+
+    def __str__(self):
+        if six.PY3:
+            return self.__unicode__()
+        else:
+            return unicode(self).encode('utf-8')
 
 
 class Image(ApiModel):
@@ -34,7 +48,7 @@ class Media(ApiModel):
 
     def __init__(self, id=None, **kwargs):
         self.id = id
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             setattr(self, key, value)
 
     def get_standard_resolution_url(self):
@@ -49,14 +63,14 @@ class Media(ApiModel):
 
         new_media.user = User.object_from_dictionary(entry['user'])
         new_media.images = {}
-        for version, version_info in entry['images'].iteritems():
+        for version, version_info in entry['images'].items():
             if not version_info:
                 continue
             new_media.images[version] = Image.object_from_dictionary(version_info)
 
         if entry.get('videos'):
             new_media.videos = {}
-            for version, version_info in entry['videos'].iteritems():
+            for version, version_info in entry['videos'].items():
                 if not version_info:
                     continue
                 new_media.videos[version] = Video.object_from_dictionary(version_info)
@@ -100,7 +114,7 @@ class Media(ApiModel):
 class Tag(ApiModel):
     def __init__(self, name, **kwargs):
         self.name = name
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             setattr(self, key, value)
 
     def __unicode__(self):
@@ -109,7 +123,7 @@ class Tag(ApiModel):
 
 class Comment(ApiModel):
     def __init__(self, *args, **kwargs):
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             setattr(self, key, value)
 
     @classmethod
@@ -136,7 +150,7 @@ class Point(ApiModel):
 class Location(ApiModel):
     def __init__(self, id, *args, **kwargs):
         self.id = id
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             setattr(self, key, value)
 
     @classmethod
@@ -158,7 +172,7 @@ class User(ApiModel):
 
     def __init__(self, id=None, *args, **kwargs):
         self.id = id
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             setattr(self, key, value)
 
     def __unicode__(self):

@@ -1,12 +1,11 @@
 #! /usr/bin/python
+from __future__ import absolute_import
 
 import types
-import sys
 import simplejson
-import time
 import getpass
 import unittest
-import urlparse
+from six.moves.urllib_parse import urlparse, parse_qs
 from instagram import client, oauth2, InstagramAPIError
 
 TEST_AUTH = False
@@ -25,8 +24,8 @@ class MockHttp(object):
             'status':'400'
         }, "{}"
 
-        parsed = urlparse.urlparse(url)
-        options = urlparse.parse_qs(parsed.query)
+        parsed = urlparse(url)
+        options = parse_qs(parsed.query)
 
         fn_name = str(active_call)
         if fn_name == 'get_authorize_login_url':
@@ -44,6 +43,7 @@ class MockHttp(object):
         content = fl.read()
         json_content = simplejson.loads(content)
         status = json_content['meta']['code']
+        fl.close()
         return {
             'status': status
         }, content
@@ -66,7 +66,7 @@ class InstagramAuthTests(unittest.TestCase):
     def test_authorize_login_url(self):
         redirect_uri = self.unauthenticated_api.get_authorize_login_url()
         assert redirect_uri
-        print "Please visit and authorize at:\n%s" % redirect_uri
+        print("Please visit and authorize at:\n%s" % redirect_uri)
         code = raw_input("Paste received code (blank to skip): ").strip()
         if not code:
             return
@@ -80,7 +80,7 @@ class InstagramAuthTests(unittest.TestCase):
         username = raw_input("Enter username for XAuth (blank to skip): ").strip()
         if not username:
             return
-        password =  getpass.getpass("Enter password for XAuth (blank to skip): ").strip()
+        password = getpass.getpass("Enter password for XAuth (blank to skip): ").strip()
         access_token = self.unauthenticated_api.exchange_xauth_login_for_access_token(username, password)
         assert access_token
 
